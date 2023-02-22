@@ -1,0 +1,33 @@
+{
+	"include": [
+		"node_modules/@woltlab/wcf/global.d.ts",
+		"ts/**/*"
+	],
+	"compilerOptions": {
+		"experimentalDecorators": true,
+		"emitDecoratorMetadata": true,
+		"allowJs": true,
+		"target": "ES2022",
+		"module": "amd",
+		"rootDir": "ts/",
+		"outDir": "files/js/",
+		"lib": [
+			"DOM",
+			"DOM.Iterable",
+			"ES2022"
+		],
+		"strictNullChecks": true,
+		"moduleResolution": "node",
+		"esModuleInterop": true,
+		"noImplicitThis": true,
+		"strictBindCallApply": true,
+		"importHelpers": true,
+		"newLine": "lf",
+		"baseUrl": ".",
+		"paths": {
+			"*": [
+				"node_modules/@woltlab/wcf/ts/*"
+			]
+		},
+	}
+}
