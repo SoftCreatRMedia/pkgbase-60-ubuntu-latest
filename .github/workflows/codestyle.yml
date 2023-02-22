@@ -1,0 +1,88 @@
+name: Code Style
+
+on:
+  push:
+    branches:
+      - next
+    paths:
+      - '**.php'
+      - '**.ts'
+      - '**.scss'
+  pull_request:
+    paths:
+      - '**.php'
+      - '**.ts'
+      - '**.scss'
+
+jobs:
+  php:
+    name: PHP
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup PHP with tools
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.1'
+        extensions: ctype, dom, exif, gd, gmp, hash, intl, json, libxml, mbstring, opcache, pcre, pdo, pdo_mysql, zlib
+        tools: cs2pr, phpcs, php-cs-fixer
+    - name: phpcs
+      run: phpcs -n -q --report=checkstyle | cs2pr
+    - name: php-cs-fixer
+      run: php-cs-fixer fix --dry-run --diff
+  ts:
+    name: TS Prettier
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Check for package.json
+      id: check_files
+      uses: andstor/file-existence-action@v2
+      with:
+        files: "package.json"
+    - name: Set up node.js
+      if: steps.check_files.outputs.files_exists == 'true'
+      uses: actions/setup-node@v3
+      with:
+        node-version: "16"
+        cache: "npm"
+    - name: Run prettier
+      if: steps.check_files.outputs.files_exists == 'true'
+      run: |
+        shopt -s globstar
+        npx prettier --no-error-on-unmatched-pattern -w ts/**/*.ts
+    - run: echo "::add-matcher::.github/diff.json"
+      if: steps.check_files.outputs.files_exists == 'true'
+    - name: Show diff
+      if: steps.check_files.outputs.files_exists == 'true'
+      run: |
+        git checkout -- package-lock.json
+        git diff --exit-code
+  scss:
+    name: SCSS Prettier
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Check for package.json
+        id: check_files
+        uses: andstor/file-existence-action@v2
+        with:
+          files: "package.json"
+      - name: Set up node.js
+        if: steps.check_files.outputs.files_exists == 'true'
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16"
+          cache: "npm"
+      - name: Run prettier
+        if: steps.check_files.outputs.files_exists == 'true'
+        run: |
+          shopt -s globstar
+          npx prettier --no-error-on-unmatched-pattern -w files/style/**/*.scss
+      - run: echo "::add-matcher::.github/diff.json"
+        if: steps.check_files.outputs.files_exists == 'true'
+      - name: Show diff
+        if: steps.check_files.outputs.files_exists == 'true'
+        run: |
+          git checkout -- package-lock.json
+          git diff --exit-code
